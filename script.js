@@ -184,7 +184,7 @@
     var input = document.createElement('input');
     input.type = 'text';
     input.value = value;
-    input.placeholder = 'type game name';
+    input.placeholder = 'Type your game name';
 
     input.addEventListener('input', function () {
       state[playerId][index] = input.value;
