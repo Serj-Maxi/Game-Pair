@@ -28,23 +28,64 @@
   var centerArea = document.getElementById('center-area');
   var state = {};
 
-  // ---- localStorage ----
+  // ---- Firebase ----
 
-  function loadState() {
+  var firebaseConfig = {
+    apiKey: "AIzaSyDACjoCXC7dzdWC066sT6HNyos0CIn4stk",
+    authDomain: "game-pair-c2ee6.firebaseapp.com",
+    databaseURL: "https://game-pair-c2ee6-default-rtdb.firebaseio.com",
+    projectId: "game-pair-c2ee6",
+    storageBucket: "game-pair-c2ee6.firebasestorage.app",
+    messagingSenderId: "107441826474",
+    appId: "1:107441826474:web:4b4208879f2a4fd86cbed3"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  var db = firebase.database();
+  var gamesRef = db.ref('games');
+
+  // ---- localStorage (fallback cache) ----
+
+  function loadStateFromLocal() {
     try {
       var saved = localStorage.getItem(STORAGE_KEY);
       if (saved) state = JSON.parse(saved);
-    } catch (e) { /* corrupt data — start fresh */ }
+    } catch (e) {}
+  }
 
+  function saveStateToLocal() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch (e) {}
+  }
+
+  function ensureDefaults() {
     PLAYERS.forEach(function (p) {
       if (!Array.isArray(state[p.id])) state[p.id] = [''];
       if (state[p.id].length === 0) state[p.id] = [''];
     });
   }
 
-  function saveState() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-    catch (e) { /* quota exceeded — silent */ }
+  // ---- Firebase sync ----
+
+  function savePlayerToFirebase(playerId) {
+    gamesRef.child(playerId).set(state[playerId]);
+  }
+
+  function listenToFirebase() {
+    gamesRef.on('value', function (snapshot) {
+      var data = snapshot.val();
+      if (data) {
+        PLAYERS.forEach(function (p) {
+          if (Array.isArray(data[p.id])) {
+            state[p.id] = data[p.id];
+          }
+        });
+      }
+      ensureDefaults();
+      saveStateToLocal();
+      renderPlayers();
+      renderCenter();
+    });
   }
 
   // ---- Auth ----
@@ -131,7 +172,8 @@
       block.querySelector('.btn-add').addEventListener('click', function () {
         if (state[p.id].length >= MAX_GAMES) return;
         state[p.id].push('');
-        saveState();
+        saveStateToLocal();
+        savePlayerToFirebase(p.id);
         var row = createGameRow(p.id, state[p.id].length - 1, '');
         gameList.appendChild(row);
         row.querySelector('input').focus();
@@ -188,10 +230,15 @@
     input.value = value;
     input.placeholder = 'Type your game name';
 
+    var debounceTimer;
     input.addEventListener('input', function () {
       state[playerId][index] = input.value;
-      saveState();
+      saveStateToLocal();
       renderCenter();
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function () {
+        savePlayerToFirebase(playerId);
+      }, 400);
     });
 
     field.appendChild(input);
@@ -205,12 +252,14 @@
       if (state[playerId].length <= 1) {
         state[playerId][0] = '';
         input.value = '';
-        saveState();
+        saveStateToLocal();
+        savePlayerToFirebase(playerId);
         renderCenter();
         return;
       }
       state[playerId].splice(index, 1);
-      saveState();
+      saveStateToLocal();
+      savePlayerToFirebase(playerId);
       var block = stage.querySelector('[data-player-id="' + playerId + '"]');
       renderGameList(playerId, block.querySelector('.game-list'));
       repositionBlocks();
@@ -355,7 +404,8 @@
 
   // ---- Init ----
 
-  loadState();
+  loadStateFromLocal();
+  ensureDefaults();
 
   currentUser = getLoggedInUser();
   if (currentUser) {
@@ -365,4 +415,6 @@
   renderPlayers();
   renderCenter();
   rescale();
+
+  listenToFirebase();
 })();
