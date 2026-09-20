@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Pair — Find Games. Play Together.</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="login-screen" class="login-screen">
+  <img class="login-bg" src="assets/login-bg.jpg" alt="">
+  <div class="login-card">
+    <img class="login-logo" src="assets/login-logo.png" alt="Game Pair">
+    <h1 class="login-title">Login with a key</h1>
+    <div class="login-form">
+      <div class="login-input-wrap">
+        <input type="text" id="login-key" placeholder="Type your login key" autocomplete="off" autofocus>
+      </div>
+      <button class="login-btn" id="login-btn" type="button">Login</button>
+    </div>
+    <p class="login-error" id="login-error"></p>
+  </div>
+</div>
+
+<div class="viewport">
+  <div class="stage-outer">
+    <div class="stage" id="stage">
+      <img class="bg-image" src="assets/bg.jpg" alt="">
+      <div class="bg-vignette"></div>
+      <img class="logo" src="assets/logo.png" alt="Game Pair — Find Games. Play Together.">
+      <div id="center-area"></div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

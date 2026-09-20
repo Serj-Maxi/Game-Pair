@@ -1,0 +1,827 @@
+/* ==========================================================================
+   Game Pair — built to match Figma (node 13:1318)
+   Fonts: Inria Serif (nicknames), Kaisei Decol (match titles), Inter (UI)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inria+Serif:wght@400;700&family=Kaisei+Decol:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
+
+:root{
+  --ink: #0b1014;
+  --border: #566270;
+  --border-strong: #72828f;
+  --text-light: #ebe5cf;
+  --text-dim: #4f5965;
+  --btn-text: #c0cede;
+  --gold-a: #fde18b;
+  --gold-b: #eaa451;
+}
+
+*{ box-sizing: border-box; }
+
+html{
+  scroll-behavior: smooth;
+}
+
+html, body{
+  margin: 0;
+  padding: 0;
+  background: #000;
+  color: var(--text-light);
+  font-family: 'Inter', Arial, sans-serif;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* ---------- Scaling stage ---------- */
+
+.viewport{
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: #000 url('assets/bg.jpg') center top / cover no-repeat fixed;
+  padding: 0;
+}
+
+.viewport::after{
+  content: '';
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 50vh;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stage-outer{
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1440px;
+  aspect-ratio: 1440 / 863;
+  background: transparent;
+  overflow: hidden;
+}
+
+.stage{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1440px;
+  height: 863px;
+  transform-origin: top left;
+}
+
+/* ---------- Background layers ---------- */
+
+.bg-image{
+  display: none;
+}
+
+.bg-vignette{
+  display: none;
+}
+
+/* ---------- Logo ---------- */
+
+.logo{
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 600px;
+  height: auto;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* ---------- Matches found banner ---------- */
+
+.matches-wrap{
+  position: absolute;
+  left: 485px;
+  top: 268px;
+  width: 467px;
+  height: 58px;
+  pointer-events: none;
+}
+
+.matches-wrap .glow{
+  position: absolute;
+  inset: -22px -10px;
+  background: radial-gradient(ellipse at center, rgba(255,160,50,0.38), rgba(255,120,30,0.12) 55%, transparent 75%);
+  filter: blur(4px);
+  z-index: 0;
+}
+
+.matches-wrap img{
+  position: absolute;
+  left: 0;
+  top: 5px;
+  width: 467px;
+  height: 48px;
+  z-index: 1;
+  display: block;
+}
+
+/* ---------- Match found cards ---------- */
+
+.match-card{
+  position: absolute;
+  left: 50%;
+  width: 400px;
+  height: 205px;
+  transform: translateX(-50%);
+}
+
+.match-card .card-frame{
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  width: 100%;
+  height: auto;
+  transform: translateY(-50%);
+  display: block;
+  pointer-events: none;
+}
+
+.match-card .card-title{
+  position: absolute;
+  left: 50%;
+  top: 30.5px;
+  transform: translateX(-50%);
+  margin: 0;
+  width: 90%;
+  text-align: center;
+  font-family: 'Kaisei Decol', serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: linear-gradient(to bottom, var(--gold-a), var(--gold-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.9));
+}
+
+.card-avatars{
+  position: absolute;
+  left: 50%;
+  bottom: 41px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.mini-avatar{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.mini-avatar img{
+  width: 50px;
+  height: 50px;
+  display: block;
+}
+
+.mini-avatar span{
+  font-family: 'Inria Serif', serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--text-light);
+  text-shadow: 0 2px 4px #000;
+  white-space: nowrap;
+}
+
+/* ---------- Player blocks ---------- */
+
+.player-block{
+  position: absolute;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 19px;
+}
+
+.player-avatar-row{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.player-avatar-row img{
+  width: 80px;
+  height: 80px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.player-nickname{
+  font-family: 'Inria Serif', serif;
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--text-light);
+  text-shadow: 0 2px 4px #000;
+  white-space: nowrap;
+}
+
+.game-list{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+}
+
+.game-row{
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.input-field{
+  background: var(--ink);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px 0 #000;
+  height: 37px;
+  width: 266px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.input-field:focus-within{
+  border-color: var(--gold-b);
+  box-shadow: 0 2px 4px 0 #000, 0 0 8px 1px rgba(234,164,81,0.3);
+}
+
+.input-field input{
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--text-light);
+  padding: 0;
+  text-overflow: ellipsis;
+}
+
+.input-field input::placeholder{
+  color: var(--text-dim);
+  font-style: normal;
+  opacity: 1;
+}
+
+.btn-delete{
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 2px solid var(--border-strong);
+  background: linear-gradient(to bottom, #9a3532 13.462%, #1a0908 100%);
+  box-shadow: 0 2px 4px 0 #000, inset 0 4px 4px 1px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-delete .bar{
+  width: 15px;
+  height: 3px;
+  border-radius: 999px;
+  background: #dd5049;
+  box-shadow: 0 0 2px 1px rgba(0,0,0,0.5);
+}
+
+.btn-delete:hover{ filter: brightness(1.12); }
+.btn-delete:active{ transform: translateY(1px); }
+
+.player-actions{
+  width: 100%;
+  padding-right: 36px;
+}
+
+.btn-add{
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: linear-gradient(to bottom, #1f3751, #0e1a28);
+  box-shadow: 0 2px 4px 0 #000, inset 0 1px 6px 0 rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.btn-add span{
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--btn-text);
+  text-shadow: 0 0 2px #000;
+  white-space: nowrap;
+}
+
+.btn-add svg{
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.btn-add{
+  transition: filter 0.15s ease-out, transform 0.1s ease-out;
+}
+
+.btn-add:hover{ filter: brightness(1.15); }
+.btn-add:active{ transform: translateY(1px); }
+
+.btn-delete{
+  transition: filter 0.15s ease-out, transform 0.1s ease-out;
+}
+
+/* ---------- Positions (from Figma) ---------- */
+
+.pos-shark{ left: 60px; top: 60px; }
+.pos-ash{ left: 60px; top: 459px; }
+.pos-lamer{ left: 1080px; top: 60px; }
+.pos-sega{ left: 1080px; top: 459px; }
+
+.card-1{ top: 314px; }
+.card-2{ top: 519px; }
+
+/* ---------- Center area states ---------- */
+
+.center-empty{
+  position: absolute;
+  left: 50%;
+  top: 340px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.center-empty img{
+  width: 467px;
+  height: auto;
+  display: block;
+}
+
+.center-no-match{
+  position: absolute;
+  left: 50%;
+  top: 300px;
+  transform: translateX(-50%);
+  width: 467px;
+  pointer-events: none;
+}
+
+.center-no-match .glow{
+  position: absolute;
+  inset: -22px -10px;
+  background: radial-gradient(ellipse at center, rgba(255,160,50,0.25), rgba(255,120,30,0.08) 55%, transparent 75%);
+  filter: blur(4px);
+  z-index: 0;
+}
+
+.center-no-match .no-match-banner{
+  position: relative;
+  width: 467px;
+  height: auto;
+  z-index: 1;
+  display: block;
+}
+
+.center-swords{
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 240px;
+  height: auto;
+  margin: 16px auto 0;
+  opacity: 0.7;
+  filter: drop-shadow(0 0 16px rgba(234,164,81,0.35));
+}
+
+/* ---------- Animations ---------- */
+
+@keyframes fadeSlideUp{
+  from{ opacity: 0; transform: translateX(-50%) translateY(18px); }
+  to{ opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes fadeIn{
+  from{ opacity: 0; }
+  to{ opacity: 1; }
+}
+
+@keyframes glowPulse{
+  0%, 100%{ opacity: 0.7; }
+  50%{ opacity: 1; }
+}
+
+.match-card{
+  animation: fadeSlideUp 0.35s ease-out both;
+}
+
+.matches-wrap{
+  animation: fadeIn 0.25s ease-out both;
+}
+
+.matches-wrap .glow{
+  animation: glowPulse 2.5s ease-in-out infinite;
+}
+
+.center-no-match{
+  animation: fadeIn 0.3s ease-out both;
+}
+
+.center-empty{
+  animation: fadeIn 0.4s ease-out both;
+}
+
+.game-row{
+  animation: fadeIn 0.2s ease-out both;
+}
+
+/* ---------- Login screen ---------- */
+
+.login-screen{
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-screen.hidden{ display: none; }
+
+.login-bg{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.login-card{
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 0 40px 40px;
+  margin-top: -60px;
+}
+
+.login-logo{
+  width: 500px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.6));
+}
+
+.login-title{
+  margin: 0;
+  font-family: 'Kaisei Decol', serif;
+  font-weight: 500;
+  font-size: 28px;
+  color: var(--text-light);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+.login-form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 340px;
+}
+
+.login-input-wrap{
+  width: 100%;
+  background: rgba(11,16,20,0.85);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.5);
+  height: 48px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.login-input-wrap:focus-within{
+  border-color: var(--gold-b);
+  box-shadow: 0 2px 4px 0 #000, 0 0 12px 2px rgba(234,164,81,0.3);
+}
+
+.login-input-wrap input{
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  color: var(--text-light);
+  padding: 0;
+}
+
+.login-input-wrap input::placeholder{
+  color: var(--text-dim);
+  font-style: normal;
+  opacity: 1;
+}
+
+.login-btn{
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  border: 1.5px solid var(--gold-b);
+  background: linear-gradient(to bottom, #3a2a10, #1a1208);
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.6), inset 0 1px 0 rgba(253,225,139,0.15);
+  font-family: 'Kaisei Decol', serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--gold-a);
+  cursor: pointer;
+  text-shadow: 0 0 6px rgba(234,164,81,0.4);
+  transition: filter 0.15s ease-out, transform 0.1s ease-out;
+}
+
+.login-btn:hover{ filter: brightness(1.2); }
+.login-btn:active{ transform: translateY(1px); }
+
+.login-error{
+  margin: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 14px;
+  color: #dd5049;
+  min-height: 20px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+/* ---------- Read-only & active player blocks ---------- */
+
+.player-block--readonly .input-field{
+  pointer-events: none;
+}
+
+.player-block--readonly .btn-delete{
+  visibility: hidden;
+}
+
+.player-block--readonly .player-actions{
+  display: none;
+}
+
+.player-block--active .player-avatar-row img{
+  box-shadow: 0 0 14px 3px rgba(234,164,81,0.45);
+  border-radius: 50%;
+}
+
+/* ---------- Logout button ---------- */
+
+.logout-btn{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: linear-gradient(to bottom, #1f3751, #0e1a28);
+  box-shadow: 0 2px 4px 0 #000, inset 0 1px 6px 0 rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 18px;
+  cursor: pointer;
+  z-index: 10;
+  transition: filter 0.15s ease-out, transform 0.1s ease-out;
+}
+
+.logout-btn span{
+  font-family: 'Inter', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--btn-text);
+  text-shadow: 0 0 2px #000;
+  white-space: nowrap;
+}
+
+.logout-btn svg{
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.logout-btn:hover{ filter: brightness(1.15); }
+.logout-btn:active{ transform: translateY(1px); }
+
+/* ---------- Responsive: tablet & mobile (single column) ---------- */
+
+@media (max-width: 1024px){
+  .viewport{
+    align-items: stretch;
+  }
+
+  .viewport::after{
+    height: 40vh;
+  }
+
+  .stage-outer{
+    aspect-ratio: auto !important;
+    overflow: visible;
+  }
+
+  .stage{
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+    gap: 28px;
+  }
+
+  .logo{
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: min(70vw, 400px);
+  }
+
+  .player-block{
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    width: 100%;
+    max-width: 400px;
+    order: 1;
+  }
+
+  .input-field{
+    flex: 1;
+    width: auto;
+  }
+
+  #center-area{
+    order: 10;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .center-empty{
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+  }
+
+  .center-empty img{
+    width: min(100%, 400px);
+  }
+
+  .center-no-match{
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: min(100%, 400px);
+  }
+
+  .matches-wrap{
+    position: relative;
+    left: auto;
+    top: auto;
+    width: min(100%, 467px);
+    height: 58px;
+  }
+
+  .matches-wrap img{
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    height: auto;
+  }
+
+  .match-card{
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: 100%;
+    max-width: 400px;
+    height: 205px;
+    margin: 16px auto 0;
+    animation: fadeIn 0.35s ease-out both;
+  }
+
+  .logout-btn{
+    position: fixed !important;
+    top: 16px !important;
+    right: 16px !important;
+    z-index: 50;
+  }
+}
+
+/* ---------- Mobile fine-tuning ---------- */
+
+@media (max-width: 600px){
+  .stage{
+    padding: 16px 12px 40px;
+    gap: 24px;
+  }
+
+  .logo{
+    width: min(85vw, 340px);
+  }
+
+  .player-block{
+    max-width: 100%;
+  }
+
+  .player-nickname{
+    font-size: 22px;
+  }
+
+  .player-avatar-row img{
+    width: 64px;
+    height: 64px;
+  }
+
+  .match-card{
+    max-width: 100%;
+  }
+
+  .match-card .card-title{
+    font-size: 24px;
+  }
+
+  .logout-btn{
+    padding: 0 12px;
+  }
+
+  .logout-btn span{
+    font-size: 14px;
+  }
+
+  .login-logo{
+    width: min(90vw, 500px);
+  }
+
+  .login-form{
+    width: min(90vw, 340px);
+  }
+
+  .login-card{
+    padding: 0 16px 40px;
+    margin-top: 0;
+  }
+
+  .login-title{
+    font-size: 22px;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
