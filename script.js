@@ -67,6 +67,8 @@
 
   // ---- Firebase sync ----
 
+  var firebaseReady = false;
+
   function savePlayerToFirebase(playerId) {
     gamesRef.child(playerId).set(state[playerId]);
   }
@@ -74,17 +76,37 @@
   function listenToFirebase() {
     gamesRef.on('value', function (snapshot) {
       var data = snapshot.val();
-      if (data) {
-        PLAYERS.forEach(function (p) {
-          if (Array.isArray(data[p.id])) {
-            state[p.id] = data[p.id];
-          }
-        });
-      }
+      var isInitial = !firebaseReady;
+      firebaseReady = true;
+
+      if (!data) return;
+
+      var changed = false;
+      PLAYERS.forEach(function (p) {
+        if (!Array.isArray(data[p.id])) return;
+        if (!isInitial && p.id === currentUser) return;
+        if (JSON.stringify(state[p.id]) !== JSON.stringify(data[p.id])) {
+          state[p.id] = data[p.id];
+          changed = true;
+        }
+      });
+
+      if (!changed) return;
       ensureDefaults();
       saveStateToLocal();
-      renderPlayers();
-      renderCenter();
+
+      if (isInitial) {
+        renderPlayers();
+        renderCenter();
+      } else {
+        PLAYERS.forEach(function (p) {
+          if (p.id === currentUser) return;
+          var block = stage.querySelector('[data-player-id="' + p.id + '"]');
+          if (block) renderGameList(p.id, block.querySelector('.game-list'));
+        });
+        repositionBlocks();
+        renderCenter();
+      }
     });
   }
 
