@@ -72,12 +72,6 @@
   var pendingFirebaseData = null;
   var REMOTE_THROTTLE_MS = 3000;
 
-  var centerDebounceTimer;
-  function debouncedRenderCenter() {
-    clearTimeout(centerDebounceTimer);
-    centerDebounceTimer = setTimeout(renderCenter, 500);
-  }
-
   var syncSpinner = document.createElement('div');
   syncSpinner.className = 'sync-spinner';
   syncSpinner.innerHTML =
@@ -91,6 +85,7 @@
     syncSpinner.classList.add('active');
     spinnerTimer = setTimeout(function () {
       syncSpinner.classList.remove('active');
+      renderCenter();
     }, SPINNER_MS);
   }
 
@@ -299,7 +294,6 @@
     input.addEventListener('input', function () {
       state[playerId][index] = input.value;
       saveStateToLocal();
-      debouncedRenderCenter();
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(function () {
         savePlayerToFirebase(playerId);
