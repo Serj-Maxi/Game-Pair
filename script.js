@@ -78,7 +78,24 @@
     centerDebounceTimer = setTimeout(renderCenter, 500);
   }
 
+  var syncSpinner = document.createElement('div');
+  syncSpinner.className = 'sync-spinner';
+  syncSpinner.innerHTML =
+    '<div class="sync-spinner__ring"></div>' +
+    '<div class="sync-spinner__label"><span>s</span><span>y</span><span>n</span><span>c</span><span>i</span><span>n</span><span>g</span></div>';
+  var spinnerTimer = null;
+  var SPINNER_MS = 3000;
+
+  function showSyncSpinner() {
+    clearTimeout(spinnerTimer);
+    syncSpinner.classList.add('active');
+    spinnerTimer = setTimeout(function () {
+      syncSpinner.classList.remove('active');
+    }, SPINNER_MS);
+  }
+
   function savePlayerToFirebase(playerId) {
+    showSyncSpinner();
     gamesRef.child(playerId).set(state[playerId]);
   }
 
@@ -124,6 +141,7 @@
 
       pendingFirebaseData = data;
       if (!firebaseThrottleTimer) {
+        showSyncSpinner();
         firebaseThrottleTimer = setTimeout(function () {
           firebaseThrottleTimer = null;
           if (pendingFirebaseData) {
@@ -461,6 +479,7 @@
 
   renderPlayers();
   renderCenter();
+  stage.appendChild(syncSpinner);
   rescale();
 
   listenToFirebase();
