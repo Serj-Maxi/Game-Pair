@@ -2,10 +2,11 @@
   'use strict';
 
   var PLAYERS = [
-    { id: 'shark', name: 'Shark', avatar: 'assets/avatar-shark.png', posClass: 'pos-shark' },
-    { id: 'ash',   name: 'Ash',   avatar: 'assets/avatar-ash.png',   posClass: 'pos-ash' },
-    { id: 'lamer', name: 'Lamer', avatar: 'assets/avatar-lamer.png', posClass: 'pos-lamer' },
-    { id: 'sega',  name: 'Sega',  avatar: 'assets/avatar-sega.png',  posClass: 'pos-sega' },
+    { id: 'shark',    name: 'Shark',    avatar: 'assets/avatar-shark.png',    posClass: 'pos-shark' },
+    { id: 'ash',      name: 'Ash',      avatar: 'assets/avatar-ash.png',      posClass: 'pos-ash' },
+    { id: 'lamer',    name: 'Lamer',    avatar: 'assets/avatar-lamer.png',    posClass: 'pos-lamer' },
+    { id: 'sega',     name: 'Sega',     avatar: 'assets/avatar-sega.png',     posClass: 'pos-sega' },
+    { id: 'superfox', name: 'SuperFox', avatar: 'assets/avatar-superfox.png', posClass: 'pos-superfox' },
   ];
 
   var STORAGE_KEY = 'gamepair_data';
@@ -16,8 +17,9 @@
   var KEYS = {
     shark: 'Shark-2299',
     ash: 'Ash-7575',
-    lamer: 'Lamer3388',
-    sega: 'Sega-2411'
+    lamer: 'Lamer-3388',
+    sega: 'Sega-2411',
+    superfox: 'Kate-9999'
   };
   var SESSION_KEY = 'gamepair_user';
   var currentUser = null;
@@ -230,8 +232,9 @@
     var lamerBlock = stage.querySelector('[data-player-id="lamer"]');
     var ashBlock = stage.querySelector('[data-player-id="ash"]');
     var segaBlock = stage.querySelector('[data-player-id="sega"]');
+    var superfoxBlock = stage.querySelector('[data-player-id="superfox"]');
 
-    if (!sharkBlock || !ashBlock || !lamerBlock || !segaBlock) return;
+    if (!sharkBlock || !ashBlock || !lamerBlock || !segaBlock || !superfoxBlock) return;
 
     var ashTop = Math.max(MIN_TOP, sharkBlock.offsetTop + sharkBlock.offsetHeight + GAP);
     var segaTop = Math.max(MIN_TOP, lamerBlock.offsetTop + lamerBlock.offsetHeight + GAP);
@@ -239,11 +242,14 @@
     ashBlock.style.top = ashTop + 'px';
     segaBlock.style.top = segaTop + 'px';
 
-    var maxBottom = Math.max(
+    var bottomRowMax = Math.max(
       ashTop + ashBlock.offsetHeight,
       segaTop + segaBlock.offsetHeight
     );
-    var stageHeight = Math.max(863, maxBottom + 40);
+    var superfoxTop = bottomRowMax + GAP;
+    superfoxBlock.style.top = superfoxTop + 'px';
+
+    var stageHeight = Math.max(863, superfoxTop + superfoxBlock.offsetHeight + 40);
     stage.style.height = stageHeight + 'px';
     outer.style.aspectRatio = '1440 / ' + stageHeight;
   }

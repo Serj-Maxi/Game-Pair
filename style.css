@@ -367,6 +367,7 @@ html, body{
 .pos-ash{ left: 60px; top: 459px; }
 .pos-lamer{ left: 1080px; top: 60px; }
 .pos-sega{ left: 1080px; top: 459px; }
+.pos-superfox{ left: 50%; top: 620px; transform: translateX(-50%); }
 
 .card-1{ top: 314px; }
 .card-2{ top: 519px; }
@@ -684,6 +685,7 @@ html, body{
     left: auto !important;
     top: auto !important;
     right: auto !important;
+    transform: none !important;
     width: 100%;
     max-width: 400px;
     order: 1;
@@ -719,6 +721,14 @@ html, body{
     top: auto;
     transform: none;
     width: min(100%, 400px);
+  }
+
+  .center-no-match .no-match-banner{
+    width: 100%;
+  }
+
+  .center-swords{
+    width: min(50%, 240px);
   }
 
   .matches-wrap{
