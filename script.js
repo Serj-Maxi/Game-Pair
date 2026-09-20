@@ -68,44 +68,69 @@
   // ---- Firebase sync ----
 
   var firebaseReady = false;
+  var firebaseThrottleTimer = null;
+  var pendingFirebaseData = null;
+  var REMOTE_THROTTLE_MS = 3000;
+
+  var centerDebounceTimer;
+  function debouncedRenderCenter() {
+    clearTimeout(centerDebounceTimer);
+    centerDebounceTimer = setTimeout(renderCenter, 500);
+  }
 
   function savePlayerToFirebase(playerId) {
     gamesRef.child(playerId).set(state[playerId]);
   }
 
+  function applyFirebaseData(data, isInitial) {
+    var changed = false;
+    PLAYERS.forEach(function (p) {
+      if (!Array.isArray(data[p.id])) return;
+      if (!isInitial && p.id === currentUser) return;
+      if (JSON.stringify(state[p.id]) !== JSON.stringify(data[p.id])) {
+        state[p.id] = data[p.id];
+        changed = true;
+      }
+    });
+
+    if (!changed) return;
+    ensureDefaults();
+    saveStateToLocal();
+
+    if (isInitial) {
+      renderPlayers();
+      renderCenter();
+    } else {
+      PLAYERS.forEach(function (p) {
+        if (p.id === currentUser) return;
+        var block = stage.querySelector('[data-player-id="' + p.id + '"]');
+        if (block) renderGameList(p.id, block.querySelector('.game-list'));
+      });
+      repositionBlocks();
+      renderCenter();
+    }
+  }
+
   function listenToFirebase() {
     gamesRef.on('value', function (snapshot) {
       var data = snapshot.val();
-      var isInitial = !firebaseReady;
-      firebaseReady = true;
-
       if (!data) return;
 
-      var changed = false;
-      PLAYERS.forEach(function (p) {
-        if (!Array.isArray(data[p.id])) return;
-        if (!isInitial && p.id === currentUser) return;
-        if (JSON.stringify(state[p.id]) !== JSON.stringify(data[p.id])) {
-          state[p.id] = data[p.id];
-          changed = true;
-        }
-      });
+      if (!firebaseReady) {
+        firebaseReady = true;
+        applyFirebaseData(data, true);
+        return;
+      }
 
-      if (!changed) return;
-      ensureDefaults();
-      saveStateToLocal();
-
-      if (isInitial) {
-        renderPlayers();
-        renderCenter();
-      } else {
-        PLAYERS.forEach(function (p) {
-          if (p.id === currentUser) return;
-          var block = stage.querySelector('[data-player-id="' + p.id + '"]');
-          if (block) renderGameList(p.id, block.querySelector('.game-list'));
-        });
-        repositionBlocks();
-        renderCenter();
+      pendingFirebaseData = data;
+      if (!firebaseThrottleTimer) {
+        firebaseThrottleTimer = setTimeout(function () {
+          firebaseThrottleTimer = null;
+          if (pendingFirebaseData) {
+            applyFirebaseData(pendingFirebaseData, false);
+            pendingFirebaseData = null;
+          }
+        }, REMOTE_THROTTLE_MS);
       }
     });
   }
@@ -256,7 +281,7 @@
     input.addEventListener('input', function () {
       state[playerId][index] = input.value;
       saveStateToLocal();
-      renderCenter();
+      debouncedRenderCenter();
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(function () {
         savePlayerToFirebase(playerId);
