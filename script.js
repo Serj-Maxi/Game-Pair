@@ -10,7 +10,7 @@
   ];
 
   var STORAGE_KEY = 'gamepair_data';
-  var MAX_GAMES = 10;
+  var MAX_GAMES = 30;
   var CARD_TOP_START = 314;
   var CARD_SPACING = 205;
 
