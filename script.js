@@ -43,6 +43,8 @@
   firebase.initializeApp(firebaseConfig);
   var db = firebase.database();
   var gamesRef = db.ref('games');
+  var likesRef = db.ref('likes');
+  var likesState = {};
 
   // ---- localStorage (fallback cache) ----
 
@@ -146,6 +148,106 @@
         }, REMOTE_THROTTLE_MS);
       }
     });
+  }
+
+  // ---- Likes ----
+
+  var HEART_OUTLINE = '<svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+  var HEART_FILLED = '<svg viewBox="0 0 24 24" fill="#d4af37" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+
+  function getPlayerName(id) {
+    for (var i = 0; i < PLAYERS.length; i++) {
+      if (PLAYERS[i].id === id) return PLAYERS[i].name;
+    }
+    return id;
+  }
+
+  function getLikes(playerId, index) {
+    if (!likesState[playerId]) return {};
+    return likesState[playerId][index] || {};
+  }
+
+  function getLikeCount(playerId, index) {
+    var likes = getLikes(playerId, index);
+    return Object.keys(likes).length;
+  }
+
+  function hasUserLiked(playerId, index) {
+    var likes = getLikes(playerId, index);
+    return currentUser && !!likes[currentUser];
+  }
+
+  function toggleLike(playerId, index) {
+    if (!currentUser) return;
+    var path = playerId + '/' + index + '/' + currentUser;
+    if (hasUserLiked(playerId, index)) {
+      likesRef.child(path).remove();
+    } else {
+      likesRef.child(path).set(true);
+    }
+  }
+
+  function shiftLikesOnDelete(playerId, deletedIndex, totalBefore) {
+    if (!likesState[playerId]) return;
+    var updated = {};
+    for (var key in likesState[playerId]) {
+      var idx = parseInt(key, 10);
+      if (idx < deletedIndex) updated[idx] = likesState[playerId][key];
+      else if (idx > deletedIndex) updated[idx - 1] = likesState[playerId][key];
+    }
+    likesState[playerId] = updated;
+    likesRef.child(playerId).set(updated);
+  }
+
+  function listenToLikes() {
+    likesRef.on('value', function (snapshot) {
+      var data = snapshot.val();
+      likesState = data || {};
+      updateAllLikeBadges();
+    });
+  }
+
+  function updateAllLikeBadges() {
+    PLAYERS.forEach(function (p) {
+      var block = stage.querySelector('[data-player-id="' + p.id + '"]');
+      if (!block) return;
+      var rows = block.querySelectorAll('.game-row');
+      rows.forEach(function (row, i) {
+        updateRowLikeUI(row, p.id, i);
+      });
+    });
+  }
+
+  function updateRowLikeUI(row, playerId, index) {
+    var count = getLikeCount(playerId, index);
+    var liked = hasUserLiked(playerId, index);
+
+    var badge = row.querySelector('.like-badge');
+    var tooltip = row.querySelector('.like-tooltip');
+    var likeBtn = row.querySelector('.like-btn');
+
+    if (count > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'like-badge';
+        tooltip = document.createElement('span');
+        tooltip.className = 'like-tooltip';
+        row.appendChild(badge);
+        row.appendChild(tooltip);
+        badge.addEventListener('mouseenter', function () { tooltip.style.opacity = '1'; });
+        badge.addEventListener('mouseleave', function () { tooltip.style.opacity = '0'; });
+      }
+      badge.textContent = count;
+      var likers = Object.keys(getLikes(playerId, index)).map(getPlayerName);
+      tooltip.textContent = 'Likes: ' + likers.join(', ');
+    } else {
+      if (badge) { badge.remove(); }
+      if (tooltip) { tooltip.remove(); }
+    }
+
+    if (likeBtn) {
+      likeBtn.innerHTML = liked ? HEART_FILLED : HEART_OUTLINE;
+    }
   }
 
   // ---- Auth ----
@@ -313,12 +415,17 @@
         input.value = '';
         saveStateToLocal();
         savePlayerToFirebase(playerId);
+        if (likesState[playerId] && likesState[playerId][0]) {
+          likesRef.child(playerId + '/0').remove();
+        }
         renderCenter();
         return;
       }
+      var totalBefore = state[playerId].length;
       state[playerId].splice(index, 1);
       saveStateToLocal();
       savePlayerToFirebase(playerId);
+      shiftLikesOnDelete(playerId, index, totalBefore);
       var block = stage.querySelector('[data-player-id="' + playerId + '"]');
       renderGameList(playerId, block.querySelector('.game-list'));
       repositionBlocks();
@@ -327,6 +434,19 @@
 
     row.appendChild(field);
     row.appendChild(deleteBtn);
+
+    if (currentUser && playerId !== currentUser) {
+      var likeBtn = document.createElement('button');
+      likeBtn.className = 'like-btn';
+      likeBtn.setAttribute('aria-label', 'Like this game');
+      likeBtn.innerHTML = hasUserLiked(playerId, index) ? HEART_FILLED : HEART_OUTLINE;
+      likeBtn.addEventListener('click', function () {
+        toggleLike(playerId, index);
+      });
+      row.appendChild(likeBtn);
+      updateRowLikeUI(row, playerId, index);
+    }
+
     return row;
   }
 
@@ -477,4 +597,5 @@
   rescale();
 
   listenToFirebase();
+  listenToLikes();
 })();

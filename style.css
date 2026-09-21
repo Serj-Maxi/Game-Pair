@@ -643,7 +643,7 @@ html, body{
 
 /* ---------- Read-only & active player blocks ---------- */
 
-.player-block--readonly .input-field{
+.player-block--readonly .input-field input{
   pointer-events: none;
 }
 
@@ -653,6 +653,104 @@ html, body{
 
 .player-block--readonly .player-actions{
   display: none;
+}
+
+/* ---------- Like feature ---------- */
+
+.game-row{
+  position: relative;
+}
+
+.like-btn{
+  position: absolute;
+  right: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 3;
+}
+
+.game-row:hover .like-btn{
+  opacity: 1;
+}
+
+.like-btn svg{
+  width: 20px;
+  height: 20px;
+}
+
+.like-btn:hover svg{
+  filter: brightness(1.2);
+}
+.like-btn:active{
+  transform: translateY(-50%) scale(0.9);
+}
+
+.like-badge{
+  position: absolute;
+  top: -7px;
+  right: 30px;
+  background: linear-gradient(135deg, var(--gold-a), var(--gold-b));
+  color: #1a1520;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'Inter', Arial, sans-serif;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  z-index: 4;
+  cursor: default;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.like-tooltip{
+  position: absolute;
+  top: -38px;
+  right: 24px;
+  background: #374455;
+  border: 1px solid rgba(55,68,85,0.6);
+  border-radius: 8px;
+  padding: 8px 14px;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  font-size: 13px;
+  font-family: 'Inter', Arial, sans-serif;
+  color: #e8e0f0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.like-tooltip::after{
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  right: 12px;
+  width: 7px;
+  height: 7px;
+  background: #374455;
+  border-right: 1px solid rgba(55,68,85,0.6);
+  border-bottom: 1px solid rgba(55,68,85,0.6);
+  transform: rotate(45deg);
+}
+
+.like-badge:hover + .like-tooltip{
+  opacity: 1;
 }
 
 .player-block--active .player-avatar-row img{
