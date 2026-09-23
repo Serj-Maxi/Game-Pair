@@ -92,6 +92,7 @@
   }
 
   function savePlayerToFirebase(playerId) {
+    if (!firebaseReady) return;
     showSyncSpinner();
     gamesRef.child(playerId).set(state[playerId]);
   }
@@ -178,7 +179,7 @@
   }
 
   function toggleLike(playerId, index) {
-    if (!currentUser) return;
+    if (!currentUser || !firebaseReady) return;
     var path = playerId + '/' + index + '/' + currentUser;
     if (hasUserLiked(playerId, index)) {
       likesRef.child(path).remove();
